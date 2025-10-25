@@ -17,10 +17,10 @@ Este projeto é apenas para fins educacionais.
   - **Inimigos simples** com disparos aleatórios.
 
 ## Como rodar o projeto
-  1. Clone o repositório:
-  2. Entre na pasta do projeto:
-  3. Instale as dependências:
-  4. Execute o jogo:
+  1. Clone o repositório:  git clone https://github.com/carlacastff/Projeto-Desktop-OO.git
+  2. Entre na pasta do projeto:  cd Projeto-Desktop-OO
+  3. Instale as dependências:  pip install pygame
+  4. Execute o jogo:  python main.py
 
 ## Créditos
   - Desenvolvido por: Carla de Castro França
