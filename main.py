@@ -184,6 +184,7 @@ while True:
             cuts = False
             telaScore = False
             telaMenu = True
+            backTipo = 1
 
 
     if telaInicio and cuts:
