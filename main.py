@@ -191,11 +191,7 @@ while True:
             telaScore = False
             telaMenu = True
             backTipo = 1
-<<<<<<< HEAD
-=======
-
->>>>>>> bfb0d526e0cf19d68296de6fc6acde112fe71368
-
+            
     if telaInicio and cuts:
         cutscene(tela, "Aperte espaço para começar...", '#d69b3d', 300, 20)
         cuts = False
