@@ -17,14 +17,14 @@ somTeclas = pygame.mixer.Sound('Música e Sons/som-typing.mp3')
 pygame.mixer.music.play(-1) #música toca infinitamente
 
 #variáveis tela
-imagensBackground = ['Imagens/backgrounds/0.png', 'Imagens/backgrounds/1.png', 'Imagens/backgrounds/2.png', 'Imagens/backgrounds/3.png', 'Imagens/backgrounds/4.png', 'Imagens/backgrounds/5.png', 'Imagens/backgrounds/6.png', 'Imagens/backgrounds/7.png', 'Imagens/backgrounds/Sega-Kamerr.png']
+imagensBackground = ['Imagens/backgrounds/0.png', 'Imagens/backgrounds/1.png', 'Imagens/backgrounds/2.png', 'Imagens/backgrounds/3.png', 'Imagens/backgrounds/4.png', 
+'Imagens/backgrounds/5.png', 'Imagens/backgrounds/6.png', 'Imagens/backgrounds/7.png', 'Imagens/backgrounds/Sega-Kamerr.png']
 telaInicio = True
 telaMenu = False
 telaJogo = False
 telaScore = False
 backTipo = 0
 cuts = True
-
 
 #tiros
 tUltimoTiroIn = 0
@@ -38,7 +38,7 @@ tirosPlAtivos = []
 #player e fases
 player = Player()
 fases = [
-    {"qtd_inimigos": 3, "y": 150, "espacamento": 180, "cut": True, "pos": 510, "cutscene": "Utilize as setas para se movimentar.\n Aperte espaço para atirar\n", "back": 5, "t": 20, "yy": 300},
+    {"qtd_inimigos": 3, "y": 150, "espacamento": 180, "cut": True, "pos": 510, "cutscene": "Utilize as setas para se movimentar.\n Aperte espaço para atirar\n Aperte 'ESC' para pular as cutscenes", "back": 5, "t": 20, "yy": 300},
     {"qtd_inimigos": 4, "y": 150, "espacamento": 170, "cut": False, "pos": 400, "back": 5},
     {"qtd_inimigos": 5, "y": 120, "espacamento": 150, "cut": True, "pos": 300, "cutscene": "Mais Tie-Figthers a  frente!\n Cuidado!\n", "back": 6,  "t": 20, "yy": 300},
     {"qtd_inimigos": 4, "y": 150, "espacamento": 170, "cut": False, "pos": 400, "back": 6},
@@ -104,6 +104,11 @@ def cutscene(tela, texto, cor, y, t, largura = 850, velocidade = 15):
                 if event.type == QUIT:
                     pygame.quit()
                     exit()
+                if event.type == pygame.KEYDOWN:           # primeiro verifica se é uma tecla
+                    if event.key == pygame.K_ESCAPE:        # depois verifica qual tecla
+                        esperando = False
+                        somTeclas.stop()
+                        return 0
         somTeclas.stop()
     esperando = True
     while esperando:
@@ -123,6 +128,7 @@ def cutscene(tela, texto, cor, y, t, largura = 850, velocidade = 15):
             x = (tela.get_width() - render.get_width())//2
             tela.blit(render, (x, posY))
             posY += 50
+            
 
         pygame.display.flip()
         clock.tick(60)  # evita travar
@@ -180,11 +186,11 @@ while True:
         backTipo = 0
         background = pygame.image.load(imagensBackground[backTipo])
         if cuts:
-            cutscene(tela, "Aqui serão inseridos os \nscores dos jogadores", '#5d84db', 100, 20)
+            cutscene(tela, "Aqui serão inseridos os \nscores dos jogadores\n Aperte espaço para sair...", '#5d84db', 100, 20)
             cuts = False
             telaScore = False
             telaMenu = True
-
+            backTipo = 1
 
     if telaInicio and cuts:
         cutscene(tela, "Aperte espaço para começar...", '#d69b3d', 300, 20)
