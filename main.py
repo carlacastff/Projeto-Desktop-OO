@@ -3,6 +3,7 @@ from pygame.locals import*
 from Classes.inimigo import Inimigo
 from Classes.player import Player
 from Classes.tiro import Tiro
+from Classes.dados import DadoScores
 import random
 
 #inicia pygame
@@ -23,8 +24,15 @@ telaInicio = True
 telaMenu = False
 telaJogo = False
 telaScore = False
+telaFim = False
 backTipo = 0
 cuts = True
+
+#Scores
+Scores = DadoScores()
+pontos = 0
+nome = False
+nomeJogador = ""
 
 #tiros
 tUltimoTiroIn = 0
@@ -145,9 +153,48 @@ def iniciarFase(numFase):
     
     return inimigos, numFase, backTipo
 
-while True:
+def coletarNome(tela, background):
+    nome = ""
+    fonte = pygame.font.Font('Imagens/fonte/DIGITALPIXELV80-REGULAR.ttf', 15)
+    ativo = True
+    
+    while ativo:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                exit()
+            
+            if event.type == KEYDOWN:
+                if event.key == K_RETURN and nome:
+                    pygame.event.clear()
+                    return nome
+                elif event.key == K_BACKSPACE:
+                    nome = nome[:-1]
+                elif event.key == K_ESCAPE:
+                    pygame.event.clear()
+                    return "Anônimo"
+                else:
+                    if len(nome) < 15 and event.unicode.isprintable():
+                        nome += event.unicode
+        
+        # Desenha a tela
+        tela.blit(background, (0, 0))
+        
+        texto_instrucao = fonte.render("Digite seu nome e pressione ENTER:", True, '#5d84db')
+        tela.blit(texto_instrucao, (tela.get_width()//2 - texto_instrucao.get_width()//2, 200))
+        
+        texto_nome = fonte.render(nome + "_", True, '#d69b3d')
+        tela.blit(texto_nome, (tela.get_width()//2 - texto_nome.get_width()//2, 250))
+        
+        texto_ajuda = fonte.render("Máx: 15 caracteres | ESC para Anônimo", True, '#ffffff')
+        tela.blit(texto_ajuda, (tela.get_width()//2 - texto_ajuda.get_width()//2, 350))
+        
+        pygame.display.flip()
+        clock.tick(60)
+    
+    return nome if nome else "Anônimo"
 
-    teclas = pygame.key.get_pressed()
+while True:
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -155,6 +202,8 @@ while True:
             exit()
         
         if telaMenu:
+            nome = False  # Reset para poder coletar nome novamente
+            pontos = 0 
             if teclas[pygame.K_DOWN]:
                 if backTipo == 1 or backTipo == 2:
                     backTipo = backTipo + 1
@@ -179,6 +228,7 @@ while True:
                     exit()   
                 telaMenu = False
 
+    teclas = pygame.key.get_pressed()
     background = pygame.image.load(imagensBackground[backTipo])
     tela.blit(background, (0,0))
 
@@ -186,7 +236,14 @@ while True:
         backTipo = 0
         background = pygame.image.load(imagensBackground[backTipo])
         if cuts:
-            cutscene(tela, "Aqui serão inseridos os \nscores dos jogadores\n Aperte espaço para sair...", '#5d84db', 100, 20)
+            topScores = Scores.topScores(10)
+            textoScores = "Top Scores:\n\n"
+            
+            for i, (nome, pontos) in enumerate(topScores, 1):
+                # Formata cada linha com alinhamento
+                textoScores += f"{i:2d}. {nome:<15} {pontos:>5}\n"
+            
+            cutscene(tela, textoScores, '#5d84db', 100, 20)
             cuts = False
             telaScore = False
             telaMenu = True
@@ -225,9 +282,9 @@ while True:
                     #finalizou game
                     background = pygame.image.load(imagensBackground[0])
                     cutscene(tela, "A Estrela da Morte explode...\n A Aliança Rebelde sobreviveu e\n a esperança renasce na galáxia.\n Red Squadron cumpriu sua missão.\n", '#d69b3d', 200, 20)
-                    cutscene(tela, "Aperte ESPAÇO para voltar ao menu.", '#d69b3d', 300, 20)
+                    cutscene(tela, "Aperte ESPAÇO", '#d69b3d', 300, 20)
                     telaJogo = False
-                    telaMenu = True
+                    telaFim = True
                     faseAtual = 0
                     backTipo = 1
                     faseConcluida = False
@@ -260,6 +317,7 @@ while True:
             inimigo.colisão(tirosPlAtivos, random.randint(1,10))
             terminou = inimigo.update()
             if terminou:
+                pontos = pontos + 10
                 RemoverIn.append(inimigo)
         
         # Remove os inimigos depois do loop
@@ -287,14 +345,38 @@ while True:
         if not player.vivo and not player.explodindo:
             faseConcluida = False
             cutscene(tela, "Você foi derrotado!\n", '#d69b3d', 300, 20)
-            telaMenu = True
+            telaFim = True
             telaJogo = False
             faseAtual = 0
             backTipo = 1
             background = pygame.image.load(imagensBackground[backTipo])
-            player = Player()
-            tirosInAtivos = []
             tela.blit(background, (0,0))
+
+#tela final que salva nome e pontos, reseta variáveis
+    if telaFim and not nome:
+        backTipo = 0
+        background = pygame.image.load(imagensBackground[backTipo])
+        nomeJogador = coletarNome(tela, background)
+        
+        Scores.salvarScores(nomeJogador, pontos)
+        
+        pontos = 0
+        nome = True
+        player = Player()
+        inimigos = []
+        tirosInAtivos = []
+        tirosPlAtivos = []
+        faseAtual = 0
+        telaFim = False
+        telaJogo = False
+        telaMenu = True
+        backTipo = 1
+        espera = True
+        while espera:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYUP:
+                    espera = False
+        continue
 
     pygame.display.flip()
     clock.tick(60)
